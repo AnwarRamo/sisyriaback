@@ -1,0 +1,88 @@
+
+[
+  
+  {
+    "title": "Hama Heritage: Water Wheels and Wonders",
+    "description": "Discover the iconic norias of Hama and enjoy the serene beauty of the Orontes River.",
+    "destination": "Hama",
+    "type": "Cultural",
+    "status": "Upcoming",
+    "startDate": "2025-10-10T00:00:00.000Z",
+    "endDate": "2025-10-12T00:00:00.000Z",
+    "price": 250,
+    "capacity": 30,
+    "images": ["https://i.pinimg.com/736x/0d/76/e0/0d76e003d4b9fbeadb79e07bcec9b5c4.jpg"],
+    "activities": ["Noria viewing", "Riverbank walks", "Local crafts workshop"],
+    "createdBy": "67d6bbf19a70d07a31afbd18"
+  },
+  {
+    "title": "Maaloula Mystique: Language and Legacy",
+    "description": "Visit the ancient village where Aramaic is still spoken and explore its historic monasteries nestled in the mountains.",
+    "destination": "Maaloula",
+    "type": "Cultural",
+    "status": "Upcoming",
+    "startDate": "2025-11-15T00:00:00.000Z",
+    "endDate": "2025-11-17T00:00:00.000Z",
+    "price": 350,
+    "capacity": 20,
+    "images": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7Q--1Q0JYXq7nZqpSoXSwCXMA-Da9MzRSog&s"],
+    "activities": ["Monastery visits", "Language workshops", "Mountain hikes"],
+    "createdBy": "67d6bbf19a70d07a31afbd18"
+  },
+  {
+    "title": "Bosra's Legacy: Roman Theater and Beyond",
+    "description": "Explore the ancient city of Bosra, renowned for its well-preserved Roman theater and black basalt architecture.",
+    "destination": "Bosra",
+    "type": "Historical",
+    "status": "Upcoming",
+    "startDate": "2025-12-05T00:00:00.000Z",
+    "endDate": "2025-12-07T00:00:00.000Z",
+    "price": 400,
+    "capacity": 15,
+    "images": ["https://example.com/images/bosra.jpghttps://i.pinimg.com/736x/d7/6f/37/d76f37337ab9e96cf7222189ed368367.jpg"],
+    "activities": ["Theater tour", "Archaeological site visits", "Cultural performances"],
+    "createdBy": "67d6bbf19a70d07a31afbd18"
+  },
+  {
+    "title": "Latakia Leisure: Sun, Sea, and History",
+    "description": "Relax on the Mediterranean beaches of Latakia, explore ancient ruins, and enjoy the city's vibrant nightlife.",
+    "destination": "Latakia",
+    "type": "Leisure",
+    "status": "Upcoming",
+    "startDate": "2026-01-10T00:00:00.000Z",
+    "endDate": "2026-01-15T00:00:00.000Z",
+    "price": 600,
+    "capacity": 25,
+    "images": ["https://i.pinimg.com/736x/21/f2/91/21f29184ed766a136ca9bf711ddcdccc.jpg"],
+    "activities": ["Beach activities", "Historical site tours", "Seafood tasting"],
+    "createdBy": "67d6bbf19a70d07a31afbd18"
+  },
+  {
+    "title": "Apamea Adventure: Walking Through History",
+    "description": "Stroll along the grand colonnade of Apamea, exploring the remnants of a once-thriving Hellenistic city.",
+    "destination": "Apamea",
+    "type": "Historical",
+    "status": "Upcoming",
+    "startDate": "2026-02-01T00:00:00.000Z",
+    "endDate": "2026-02-03T00:00:00.000Z",
+    "price": 450,
+    "capacity": 20,
+    "images": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1MX75pUsYF-L7EMOlvDNoAUsTWPeIPbMAjg&s"],
+    "activities": ["Colonnade walk", "Archaeology tours", "Guided historical lectures"],
+    "createdBy": "67d6bbf19a70d07a31afbd18"
+  },
+  {
+    "title": "Tartus Tranquility: Islands and Old Ports",
+    "description": "Visit the port city of Tartus and explore Arwad Island, known for its maritime legacy and coastal charm.",
+    "destination": "Tartus",
+    "type": "Leisure",
+    "status": "Upcoming",
+    "startDate": "2026-03-15T00:00:00.000Z",
+    "endDate": "2026-03-18T00:00:00.000Z",
+    "price": 480,
+    "capacity": 18,
+    "images": ["https://i.pinimg.com/736x/a9/f3/c9/a9f3c99c8af1d0e6e676ec8ebb1d0372.jpg"],
+    "activities": ["Boat ride to Arwad", "Seafood lunch", "Old harbor tour"],
+    "createdBy": "67d6bbf19a70d07a31afbd18"
+  }
+]
