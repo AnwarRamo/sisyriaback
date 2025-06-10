@@ -1,7 +1,7 @@
 
 import User from "../models/user.model.js";
 import Follow from "../models/follow.js";
-import bcrypt from 'bcrypt';
+// import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { validationResult } from 'express-validator';
