@@ -1,4 +1,3 @@
-// controllers/analytics.controller.js
 export const getUsersAnalytics = async (req, res) => {
     try {
       const data = await User.aggregate([
