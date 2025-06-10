@@ -2,7 +2,7 @@
 import User from "../models/user.model.js";
 import Follow from "../models/follow.js";
 import jwt from "jsonwebtoken";
-// import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 const authorizeUser = (req, targetId) => {
   const isAdmin = req.user.role === 'admin';
   const isOwner = req.user.userId === targetId.toString();

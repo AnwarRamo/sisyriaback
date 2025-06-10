@@ -1,7 +1,7 @@
 
 import User from "../models/user.model.js";
 import Follow from "../models/follow.js";
-// import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { validationResult } from 'express-validator';
@@ -71,7 +71,7 @@ export const loginUser = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select('+hashedPassword +tokenVersion');
     
-    if (!user || !(await bcrypt.compare(password, user.hashedPassword))) {
+    if (!user || !( bcrypt.compare(password, user.hashedPassword))) {
       return res.status(401).json({ code: 'INVALID_CREDENTIALS' });
     }
 
