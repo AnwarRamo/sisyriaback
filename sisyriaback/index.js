@@ -15,7 +15,7 @@ const __dirname = path.resolve();
 
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || "https://sisyriafinly.netlify.app", // ✅ no trailing slash
+  origin: process.env.CLIENT_URL || "https://sisyriafinly.netlify.app", 
     credentials: true,
 }));
 
