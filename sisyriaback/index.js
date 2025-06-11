@@ -6,7 +6,7 @@ import path from "path";
 import { connectDB } from "./config/db.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import userRouter from "./routes/authRouter.js";
-import session from 'express-session';
+import session from "express-session"; // <-- ✅ ADD THIS
 
 dotenv.config();
 
