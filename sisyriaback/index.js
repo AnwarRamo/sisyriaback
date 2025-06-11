@@ -7,6 +7,7 @@ import { connectDB } from "./config/db.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import userRouter from "./routes/authRouter.js";
 import session from "express-session"; // <-- ✅ ADD THIS
+import MongoStore from 'connect-mongo';
 
 dotenv.config();
 
@@ -24,9 +25,13 @@ app.use(session({
   secret: 'your-secret-key',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: 'sessions'
+  }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: 'none',       
+    secure: true,
+    sameSite: 'none',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000
   }
