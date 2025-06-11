@@ -25,15 +25,6 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-<<<<<<< HEAD
-    secure: true,       // Required for HTTPS
-    sameSite: 'none',   // Required for cross-origin
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
-  }
-}));
-
-=======
     secure: process.env.NODE_ENV === 'production', 
     sameSite: 'none',       
     httpOnly: true,
@@ -42,7 +33,6 @@ app.use(session({
 }));
 
 
->>>>>>> df7a872 (Remove bcrypt and use bcryptjs instead)
 // If using custom middleware
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Credentials', true);
