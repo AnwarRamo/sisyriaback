@@ -20,6 +20,7 @@ app.use(cors({
   origin: 'https://sisyriaback-production.up.railway.app/api/users',
   credentials: true
 }));
+app.set('trust proxy', 1); // Required for secure cookies behind proxies
 
 app.use(session({
   secret: 'your-secret-key',
