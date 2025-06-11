@@ -6,6 +6,7 @@ import path from "path";
 import { connectDB } from "./config/db.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import userRouter from "./routes/authRouter.js";
+import session from 'express-session';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
+<<<<<<< HEAD
     secure: true,       // Required for HTTPS
     sameSite: 'none',   // Required for cross-origin
     httpOnly: true,
@@ -31,6 +33,16 @@ app.use(session({
   }
 }));
 
+=======
+    secure: process.env.NODE_ENV === 'production', 
+    sameSite: 'none',       
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+
+>>>>>>> df7a872 (Remove bcrypt and use bcryptjs instead)
 // If using custom middleware
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Credentials', true);
