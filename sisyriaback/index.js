@@ -25,7 +25,7 @@ console.log("mongo_uri:", process.env.MONGO_URI);
 // CORS Configuration (replace with your frontend domain!)
 app.use(
   cors({
-    origin: "https://your-frontend-domain.com", // ✅ <-- Replace with real frontend
+origin: "https://sisyriafinly.netlify.app",
     credentials: true,
   })
 );
