@@ -15,10 +15,27 @@ const __dirname = path.resolve();
 
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || "https://sisyriafinly.netlify.app", 
-    credentials: true,
+  origin: 'https://sisyriaback-production.up.railway.app/api/users',
+  credentials: true
 }));
 
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,       // Required for HTTPS
+    sameSite: 'none',   // Required for cross-origin
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
+  }
+}));
+
+// If using custom middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', true);
+  next();
+});;
 
 // Middlewares
 app.use(express.json()); 
