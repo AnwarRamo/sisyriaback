@@ -32,6 +32,7 @@ origin: "https://sisyriafinly.netlify.app",
 
 // Trust proxy if behind one (e.g. Railway, Vercel)
 app.set("trust proxy", 1);
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Session config
 app.use(
@@ -44,8 +45,8 @@ app.use(
       collectionName: "sessions",
     }),
     cookie: {
-      secure: true,
-      sameSite: "none",
+    secure: process.env.NODE_ENV === "production", // secure only in prod
+    sameSite: isProduction ? 'None' : 'Lax',
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     },
