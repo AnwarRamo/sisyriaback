@@ -15,8 +15,8 @@ const __dirname = path.resolve();
 
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || "https://sisyriafinly.netlify.app", 
-  credentials: true,
+    origin: process.env.CLIENT_URL || "http://localhost:3000", 
+    credentials: true,
 }));
 
 
