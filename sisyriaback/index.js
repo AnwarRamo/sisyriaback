@@ -15,7 +15,8 @@ const __dirname = path.resolve();
 
 // CORS Configuration - IMPORTANT for frontend to connect
 app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000", 
+    origin:    origin: ['https://sisyriafinly.netlify.app'], 
+
     credentials: true,
 }));
 
