@@ -32,26 +32,28 @@ origin: "https://sisyriafinly.netlify.app",
 
 // Trust proxy if behind one (e.g. Railway, Vercel)
 app.set("trust proxy", 1);
-const isProduction = process.env.NODE_ENV === 'production';
 
 // Session config
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "default-secret-key",
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI,
-      collectionName: "sessions",
-    }),
-    cookie: {
-    secure: process.env.NODE_ENV === "production", // secure only in prod
-    sameSite: isProduction ? 'None' : 'Lax',
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    },
-  })
-);
+const isProduction = process.env.NODE_ENV === 'production';
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('isProduction:', isProduction);
+
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || "default-secret-key",
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: "sessions",
+  }),
+  cookie: {
+    secure: isProduction,       // secure only in prod
+    sameSite: isProduction ? 'None' : 'Lax',  // None for cross-site in prod
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+  },
+}));
 
 // Middleware
 app.use((req, res, next) => {
