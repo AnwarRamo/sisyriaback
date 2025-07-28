@@ -62,7 +62,7 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   'http://localhost:3000',
   'http://localhost:3001',
-  'https://sisyriafinly.netlify.app',
+  'https://sisyria.netlify.app/',
   'https://sisriafinly.vercel.app'
 ].filter(Boolean);
 
