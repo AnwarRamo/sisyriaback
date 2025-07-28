@@ -89,8 +89,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('isProduction:', isProduction);
 
-// Session configuration - simplified for development
-app.use(session({
+// Session configuration with MongoDB store
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || "default-secret-key-change-in-production",
   resave: false,
   saveUninitialized: false,
@@ -100,7 +100,25 @@ app.use(session({
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   },
-}));
+};
+
+// Add MongoDB store if MONGODB_URI is available
+if (process.env.MONGODB_URI) {
+  try {
+    sessionConfig.store = MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      collectionName: "sessions",
+      ttl: 24 * 60 * 60, // 1 day in seconds
+    });
+    console.log('✅ MongoDB session store configured');
+  } catch (error) {
+    console.warn('⚠️ Failed to configure MongoDB session store, using memory store:', error.message);
+  }
+} else {
+  console.warn('⚠️ MONGODB_URI not found, using memory store for sessions');
+}
+
+app.use(session(sessionConfig));
 
 // Middleware
 app.use((req, res, next) => {
