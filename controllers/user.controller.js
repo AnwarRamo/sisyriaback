@@ -85,7 +85,13 @@ export const registerUser = async (req, res) => {
     const { hashedPassword, tokenVersion, ...userData } = user.toObject();
     console.log('=== REGISTRATION SUCCESS ===');
     console.log('User created successfully:', { username: userData.username, email: userData.email });
-    res.status(201).json({ user: userData });
+    
+    // Return both cookies and token in response for mobile compatibility
+    res.status(201).json({ 
+      user: userData,
+      token: accessToken, // For mobile apps
+      accessToken: accessToken // Alternative field name
+    });
   } catch (error) {
     console.error('=== REGISTRATION ERROR ===');
     console.error('Registration error:', error);
@@ -112,7 +118,14 @@ export const loginUser = async (req, res) => {
     setAuthCookies(res, accessToken, refreshToken);
 
     const { hashedPassword, tokenVersion, ...userData } = user.toObject();
-    res.json({ ...userData, accessTokenExpiry: Date.now() + 15 * 60 * 1000 });
+    
+    // Return both cookies and token in response for mobile compatibility
+    res.json({ 
+      ...userData, 
+      token: accessToken, // For mobile apps
+      accessToken: accessToken, // Alternative field name
+      accessTokenExpiry: Date.now() + 15 * 60 * 1000 
+    });
   } catch (error) {
     res.status(500).json({ code: 'SERVER_ERROR' });
   }

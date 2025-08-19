@@ -11,10 +11,14 @@ import tripDesignRoutes from "./routes/tripDesigns.js";
 import adminRoutes from "./routes/admin.js";
 import cartRoutes from "./routes/cart.js";
 import productsRoutes from "./routes/products.js";
+import ticketRoutes from "./routes/tickets.js";
+import eventRoutes from "./routes/events.js";
+import relationshipRoutes from "./routes/relationships.js";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import fs from "fs";
 
 // Load environment variables
 dotenv.config();
@@ -62,8 +66,12 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   'http://localhost:3000',
   'http://localhost:3001',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
   'https://sisyriafinly.netlify.app',
-  'https://sisriafinly.vercel.app'
+  'https://sisriafinly.vercel.app',
+  'https://sisyria.netlify.app'
 ].filter(Boolean);
 
 app.use(
@@ -71,15 +79,18 @@ app.use(
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) !== -1) {
+
+      // Allow any localhost/127.0.0.1 origin in development for convenience
+      const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+
+      if (allowedOrigins.includes(origin) || (!isProduction && isLocalhost)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   })
 );
@@ -148,6 +159,9 @@ app.use("/api/trip-designs", tripDesignRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/products", productsRoutes);
+app.use("/api/tickets", ticketRoutes);
+app.use("/api/events", eventRoutes);
+app.use("/api/relationships", relationshipRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -174,13 +188,21 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// Serve frontend in production
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../Front/build")));
+// Serve frontend in both development and production
+const frontendPath = path.join(__dirname, "../Front/build");
+const indexPath = path.resolve(__dirname, "../Front/build", "index.html");
 
+// Check if frontend build exists
+if (fs.existsSync(frontendPath) && fs.existsSync(indexPath)) {
+  app.use(express.static(frontendPath));
+  
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../Front/build", "index.html"));
+    res.sendFile(indexPath);
   });
+  console.log('✅ Frontend build found and will be served');
+} else {
+  console.log('⚠️ Frontend build not found. Please run "npm run build" in the Front directory');
+  console.log('Expected path:', frontendPath);
 }
 
 // Start server

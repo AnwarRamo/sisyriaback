@@ -61,3 +61,20 @@ export const isAdmin = (req, res, next) => {
   }
   next();
 };
+
+// Optional auth: attaches req.user if token is valid; otherwise continues without error
+export const optionalAuth = async (req, res, next) => {
+  try {
+    const token = req.cookies?.accessToken;
+    if (!token) return next();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!mongoose.Types.ObjectId.isValid(decoded.userId)) return next();
+    const user = await User.findById(decoded.userId).select('tokenVersion role').lean();
+    if (!user || user.tokenVersion !== decoded.tokenVersion) return next();
+    req.user = { userId: decoded.userId, role: decoded.role };
+  } catch (err) {
+    // Ignore errors and proceed unauthenticated
+  } finally {
+    next();
+  }
+};

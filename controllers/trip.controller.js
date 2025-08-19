@@ -13,7 +13,12 @@ export const fullTripCreate = asyncHandler(async (req, res) => {
     // --- 1. Destructure and Validate Basic Info ---
     const {
         title, description, destination, type, price,
-        capacity, startDate, days, dayPlansJSON
+        capacity, startDate, days, dayPlansJSON,
+        // Ticket/Plane System Fields
+        includeFlights = true,
+        departureCity, arrivalCity, departureAirport, arrivalAirport,
+        departureTime, returnTime, airline, flightNumber, returnFlightNumber,
+        seatClasses = ['Economy'], ticketPrice, availableSeats
     } = req.body;
 
     const user = req.user;
@@ -133,6 +138,21 @@ export const fullTripCreate = asyncHandler(async (req, res) => {
         dayPlans: finalDayPlans,
         createdBy: user.userId,
         status: "Completed",
+        // Ticket/Plane System Fields
+        includeFlights,
+        departureCity,
+        arrivalCity,
+        departureAirport,
+        arrivalAirport,
+        departureTime: departureTime ? new Date(departureTime) : start,
+        returnTime: returnTime ? new Date(returnTime) : null,
+        airline,
+        flightNumber,
+        returnFlightNumber,
+        seatClasses,
+        ticketPrice: ticketPrice || parsedPrice,
+        availableSeats: availableSeats || parsedCapacity,
+        reservedSeats: []
     });
 
     res.status(201).json({ 

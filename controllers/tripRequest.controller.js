@@ -1,4 +1,4 @@
-import TripRequest from '../models/TripRequest.js';
+import Booking from '../models/Booking.model.js';
 import { processDayFiles } from "../utils/processDayFiles.js";
 
 // Helper function for authorization check
@@ -7,9 +7,9 @@ const checkOwnership = (design, userId) => {
     throw new Error('Design not found');
   }
 
-  // When using .lean(), 'design.user' is a plain object.
+  // When using .lean(), 'design.userId' is a plain object.
   // We need to access its '_id' property for the comparison.
-  if (design.user._id.toString() !== userId) {
+  if (design.userId._id.toString() !== userId) {
     throw new Error('Unauthorized');
   }
 };
@@ -51,8 +51,9 @@ export const createTripDesign = async (req, res) => {
 
     const processedDays = await processDayFiles(daysParsed, uploadedFiles);
 
-    const tripDesign = await TripRequest.create({
-      user: req.user.userId,
+    const tripDesign = await Booking.create({
+      userId: req.user.userId,
+      type: 'custom_trip_request',
       title,
       days: processedDays,
       status: 'pending'
@@ -75,9 +76,12 @@ export const createTripDesign = async (req, res) => {
 // Get all trip designs for user
 export const getUserTripDesigns = async (req, res) => {
   try {
-    const designs = await TripRequest.find({ user: req.user.userId })
+    const designs = await Booking.find({ 
+      userId: req.user.userId,
+      type: 'custom_trip_request'
+    })
       .sort('-createdAt')
-      .populate('user', 'username email')
+      .populate('userId', 'username email')
       .lean();
 
     return res.json({
@@ -98,10 +102,18 @@ export const getUserTripDesigns = async (req, res) => {
 // Get single trip design
 export const getTripDesignDetails = async (req, res) => {
   try {
-    const design = await TripRequest.findById(req.params.id)
-      .populate('user', 'username email')
+    const design = await Booking.findById(req.params.id)
+      .populate('userId', 'username email')
       .lean();
-      
+
+    if (!design) {
+      return res.status(404).json({
+        success: false,
+        error: 'Trip design not found'
+      });
+    }
+
+    // Check ownership
     checkOwnership(design, req.user.userId);
 
     return res.json({
@@ -111,117 +123,163 @@ export const getTripDesignDetails = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Get Design Details Error:', error);
-    const statusCode = error.message === 'Unauthorized' ? 403 : 
-                       error.message === 'Design not found' ? 404 : 400;
-    return res.status(statusCode).json({
+    
+    if (error.message === 'Design not found') {
+      return res.status(404).json({
+        success: false,
+        error: 'Trip design not found'
+      });
+    }
+    
+    if (error.message === 'Unauthorized') {
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized access'
+      });
+    }
+
+    return res.status(500).json({
       success: false,
-      error: error.message || 'Failed to get design details'
+      error: 'Failed to get trip design details'
     });
   }
 };
 
 // Update trip design
-// FIXED: This function now properly validates the 'days' field before updating.
 export const updateTripDesign = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, days } = req.body;
     const uploadedFiles = req.files || [];
 
-    const design = await TripRequest.findById(id);
-    checkOwnership(design, req.user.userId);
-
-    // Update title if it was provided in the request
-    if (title) {
-      design.title = title;
+    // Validate required fields
+    if (!title || !days) {
+      return res.status(400).json({
+        success: false,
+        error: "Title and days are required"
+      });
     }
 
-    // If 'days' data is present, parse, validate, and process it
-    if (days) {
-      let daysParsed;
-      try {
-        // Handle cases where 'days' is a JSON string (from multipart/form-data)
-        daysParsed = typeof days === 'string' ? JSON.parse(days) : days;
-        
-        // Ensure the parsed data is an array before proceeding
-        if (!Array.isArray(daysParsed)) {
-          return res.status(400).json({
-            success: false,
-            error: "Days must be an array of day objects"
-          });
-        }
-      } catch (parseError) {
-        console.error('❌ JSON Parse Error in Update:', parseError);
+    let daysParsed;
+    try {
+      daysParsed = typeof days === 'string' ? JSON.parse(days) : days;
+      
+      if (!Array.isArray(daysParsed)) {
         return res.status(400).json({
           success: false,
-          error: "Invalid days format. Must be a valid JSON array"
+          error: "Days must be an array of day objects"
         });
       }
-
-      // Process files and update the days array
-      const processedDays = await processDayFiles(daysParsed, uploadedFiles);
-      design.days = processedDays;
+    } catch (parseError) {
+      console.error('❌ JSON Parse Error:', parseError);
+      return res.status(400).json({
+        success: false,
+        error: "Invalid days format. Must be valid JSON array"
+      });
     }
 
-    design.status = 'pending'; // Reset status to pending on any update
-    design.updatedAt = new Date(); // Explicitly set update time
+    const design = await Booking.findById(id);
+    if (!design) {
+      return res.status(404).json({
+        success: false,
+        error: 'Trip design not found'
+      });
+    }
 
-    await design.save();
+    // Check ownership
+    checkOwnership(design, req.user.userId);
+
+    const processedDays = await processDayFiles(daysParsed, uploadedFiles);
+
+    const updatedDesign = await Booking.findByIdAndUpdate(
+      id,
+      {
+        title,
+        days: processedDays,
+        status: 'pending' // Reset to pending when updated
+      },
+      { new: true }
+    ).populate('userId', 'username email');
 
     return res.json({
       success: true,
-      data: design
+      data: updatedDesign
     });
 
   } catch (error) {
-    console.error('❌ Update Design Error:', error);
-    const statusCode = error.message === 'Unauthorized' ? 403 : 
-                       error.message === 'Design not found' ? 404 : 400;
-    return res.status(statusCode).json({
+    console.error('❌ Update Trip Design Error:', error);
+    
+    if (error.message === 'Design not found') {
+      return res.status(404).json({
+        success: false,
+        error: 'Trip design not found'
+      });
+    }
+    
+    if (error.message === 'Unauthorized') {
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized access'
+      });
+    }
+
+    return res.status(500).json({
       success: false,
-      error: error.message || 'Failed to update trip design'
+      error: 'Failed to update trip design'
     });
   }
 };
 
-
-// Admin review
+// Review trip design (admin function)
 export const reviewTripDesign = async (req, res) => {
   try {
-    const { status, adminComments } = req.body;
-    const validStatuses = ['approved', 'rejected'];
+    const { id } = req.params;
+    const { status, adminNote, rejectionReason } = req.body;
 
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ 
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({
         success: false,
-        error: 'Invalid status. Must be either "approved" or "rejected"' 
+        error: 'Status must be either "approved" or "rejected"'
       });
     }
 
-    const design = await TripRequest.findById(req.params.id);
+    const design = await Booking.findById(id);
     if (!design) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        error: 'Design not found' 
+        error: 'Trip design not found'
       });
     }
 
-    design.status = status;
-    design.adminComments = adminComments;
-    design.reviewedAt = new Date();
+    const updateData = {
+      status,
+      adminNote,
+      approvedAt: status === 'approved' ? new Date() : undefined,
+      rejectedAt: status === 'rejected' ? new Date() : undefined,
+      approvedBy: status === 'approved' ? req.user.userId : undefined,
+      rejectedBy: status === 'rejected' ? req.user.userId : undefined
+    };
 
-    await design.save();
+    if (status === 'rejected' && rejectionReason) {
+      updateData.rejectionReason = rejectionReason;
+    }
+
+    const updatedDesign = await Booking.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    ).populate('userId', 'username email');
 
     return res.json({
       success: true,
-      data: design
+      data: updatedDesign
     });
 
   } catch (error) {
-    console.error('❌ Review Design Error:', error);
-    return res.status(400).json({
+    console.error('❌ Review Trip Design Error:', error);
+    return res.status(500).json({
       success: false,
-      error: error.message || 'Failed to review design'
+      error: 'Failed to review trip design'
     });
   }
 };
@@ -229,23 +287,46 @@ export const reviewTripDesign = async (req, res) => {
 // Delete trip design
 export const deleteTripDesign = async (req, res) => {
   try {
-    const design = await TripRequest.findById(req.params.id);
+    const { id } = req.params;
+    
+    const design = await Booking.findById(id);
+    if (!design) {
+      return res.status(404).json({
+        success: false,
+        error: 'Trip design not found'
+      });
+    }
+
+    // Check ownership
     checkOwnership(design, req.user.userId);
 
-    await design.deleteOne();
+    await Booking.findByIdAndDelete(id);
 
     return res.json({
       success: true,
-      data: { id: req.params.id }
+      message: 'Trip design deleted successfully'
     });
 
   } catch (error) {
-    console.error('❌ Delete Design Error:', error);
-    const statusCode = error.message === 'Unauthorized' ? 403 : 
-                       error.message === 'Design not found' ? 404 : 400;
-    return res.status(statusCode).json({
+    console.error('❌ Delete Trip Design Error:', error);
+    
+    if (error.message === 'Design not found') {
+      return res.status(404).json({
+        success: false,
+        error: 'Trip design not found'
+      });
+    }
+    
+    if (error.message === 'Unauthorized') {
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized access'
+      });
+    }
+
+    return res.status(500).json({
       success: false,
-      error: error.message || 'Failed to delete design'
+      error: 'Failed to delete trip design'
     });
   }
 };
