@@ -6,6 +6,7 @@ import { uploadToCloudinary } from '../utils/cloudinary.js';
 import User from "../models/user.model.js";
 import Booking from "../models/Booking.model.js"; // ✅ هذا هو المطلوب
 import { NotificationService } from '../services/notificationService.js';
+import { getCache, setCache } from '../utils/cache.js';
 
 import mongoose from "mongoose";
 
@@ -191,9 +192,32 @@ export const uploadTripDocument = asyncHandler(async (req, res) => {
 
 export const getTrips = asyncHandler(async (req, res) => {
   try {
-    console.log('Getting all trips...');
-    const trips = await Trip.find().populate("createdBy", "username displayName").sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100; // Default limit 100 to prevent massive loads
+    const skip = (page - 1) * limit;
+
+    const cacheKey = `trips_page_${page}_limit_${limit}`;
+    const cachedTrips = getCache(cacheKey);
+
+    if (cachedTrips) {
+      console.log('Serving trips from cache');
+      return res.status(200).json(cachedTrips);
+    }
+
+    console.log('Getting all trips from DB...');
+    // Use .lean() for faster read-only queries
+    const trips = await Trip.find()
+      .populate("createdBy", "username displayName")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+      
     console.log(`Found ${trips.length} trips`);
+    
+    // Cache the result for 60 seconds
+    setCache(cacheKey, trips, 60);
+    
     res.status(200).json(trips);
   } catch (error) {
     console.error('Error getting trips:', error);
@@ -245,6 +269,13 @@ export const getTravelPackages = asyncHandler(async (req, res) => {
 
 export const getTripOverview = asyncHandler(async (req, res) => {
   try {
+    const cacheKey = 'trip_overview';
+    const cachedOverview = getCache(cacheKey);
+
+    if (cachedOverview) {
+      return res.status(200).json(cachedOverview);
+    }
+
     const overview = await Trip.aggregate([
       {
         $facet: {
@@ -281,6 +312,9 @@ export const getTripOverview = asyncHandler(async (req, res) => {
       topDestinations: []
     };
     
+    // Cache overview for 5 minutes
+    setCache(cacheKey, result, 300);
+
     res.status(200).json(result);
   } catch (error) {
     console.error('Trip Overview Error:', error);
@@ -405,6 +439,13 @@ export const registerUserForTrip = asyncHandler(async (req, res) => {
 
 export const getTripById = async (req, res) => {
     try {
+        const cacheKey = `trip_${req.params.id}`;
+        const cachedTrip = getCache(cacheKey);
+
+        if (cachedTrip) {
+            return res.status(200).json({ success: true, data: cachedTrip });
+        }
+
         // Find the trip by its ID
         const trip = await Trip.findById(req.params.id)
             // Correctly populate the 'createdBy' field instead of 'user'
@@ -417,6 +458,9 @@ export const getTripById = async (req, res) => {
                 error: 'Trip not found'
             });
         }
+
+        // Cache for 30 seconds
+        setCache(cacheKey, trip, 30);
 
         // Return the full trip object with populated user details
         res.status(200).json({
