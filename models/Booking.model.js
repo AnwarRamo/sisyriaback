@@ -66,5 +66,6 @@ bookingSchema.index({ userId: 1, status: 1 });
 bookingSchema.index({ tripId: 1, status: 1 });
 bookingSchema.index({ type: 1, status: 1 });
 bookingSchema.index({ status: 1, createdAt: -1 });
+bookingSchema.index({ registeredAt: -1 }); // Sort by registration date
 
 export default mongoose.model('Booking', bookingSchema);

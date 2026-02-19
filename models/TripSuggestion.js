@@ -23,4 +23,9 @@ const TripSuggestionSchema = new mongoose.Schema({
   createdAt: { type: Date, default: () => new Date() }
 });
 
+// Indexes
+TripSuggestionSchema.index({ user: 1 });
+TripSuggestionSchema.index({ trip: 1 });
+TripSuggestionSchema.index({ status: 1 });
+
 export default mongoose.model('TripSuggestion', TripSuggestionSchema);

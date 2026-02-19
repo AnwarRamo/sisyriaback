@@ -20,10 +20,13 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import fs from "fs";
 
+import compression from "compression";
+
 // Load environment variables
 dotenv.config();
 
 const app = express();
+app.use(compression());
 const PORT = process.env.PORT || process.env.SERVER_PORT || 8080;
 const __dirname = path.resolve();
 

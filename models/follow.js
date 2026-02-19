@@ -17,4 +17,9 @@ const followSchema = new Schema(
   { timestamps: true }
 );
 
+// Indexes
+followSchema.index({ follower: 1, following: 1 }, { unique: true }); // Prevent duplicate follows
+followSchema.index({ follower: 1 }); // Get following list
+followSchema.index({ following: 1 }); // Get followers list
+
 export default mongoose.model("Follow", followSchema);

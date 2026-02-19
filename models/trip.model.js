@@ -96,6 +96,14 @@ const tripSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Add indexes for common query patterns
+tripSchema.index({ status: 1 });
+tripSchema.index({ startDate: 1 });
+tripSchema.index({ destination: 1 });
+tripSchema.index({ type: 1 });
+tripSchema.index({ price: 1 });
+tripSchema.index({ createdAt: -1 });
+
 // Generate unique ticket number
 ticketSchema.pre('save', async function(next) {
   if (this.isNew && !this.ticketNumber) {

@@ -98,7 +98,7 @@ const userSchema = new mongoose.Schema({
   avatar: String,
   role: {
     type: String,
-    enum: ["user", "admin"],
+    enum: ["user", "admin", "guide"],
     default: "user",
   },
   
@@ -134,5 +134,11 @@ userSchema.pre('save', function(next) {
 userSchema.virtual('isLocked').get(function() {
   return this.accountLockedUntil && this.accountLockedUntil > Date.now();
 });
+
+// Add indexes for common queries
+userSchema.index({ role: 1 });
+userSchema.index({ emailVerified: 1 });
+userSchema.index({ createdAt: -1 });
+userSchema.index({ "loginHistory.timestamp": -1 });
 
 export default mongoose.model("User", userSchema);

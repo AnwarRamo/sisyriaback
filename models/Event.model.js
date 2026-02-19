@@ -13,6 +13,12 @@ const eventSchema = new mongoose.Schema({
 	timestamps: true,
 });
 
+// Indexes
+eventSchema.index({ date: 1 }); // Query upcoming events
+eventSchema.index({ createdBy: 1 }); // Filter by creator
+eventSchema.index({ location: 1 }); // Search by location
+eventSchema.index({ title: 'text' }); // Text search for title
+
 export default mongoose.model('Event', eventSchema);
 
 

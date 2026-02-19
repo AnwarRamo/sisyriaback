@@ -17,6 +17,9 @@ const eventBookingSchema = new mongoose.Schema({
 });
 
 eventBookingSchema.index({ email: 1, createdAt: -1 });
+eventBookingSchema.index({ status: 1 });
+eventBookingSchema.index({ eventDate: 1 });
+eventBookingSchema.index({ createdBy: 1 });
 
 export default mongoose.model('EventBooking', eventBookingSchema);
 

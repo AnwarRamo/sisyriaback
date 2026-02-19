@@ -31,4 +31,9 @@ const orderSchema = new Schema({
   paymentResult: { id: String, status: String, update_time: String, email_address: String },
 }, { timestamps: true }); // Adds createdAt and updatedAt automatically
 
+// Indexes
+orderSchema.index({ user: 1, createdAt: -1 }); // Get user orders sorted by date
+orderSchema.index({ status: 1 }); // Filter by status
+orderSchema.index({ createdAt: -1 }); // Admin recent orders
+
 export default mongoose.model('Order', orderSchema);

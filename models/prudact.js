@@ -37,4 +37,11 @@ const productSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
+// Indexes
+productSchema.index({ category: 1 });
+productSchema.index({ price: 1 });
+productSchema.index({ stock: 1 });
+productSchema.index({ soldCount: -1 }); // Sort by best selling
+productSchema.index({ title: 'text' }); // Search by title
+
 export default mongoose.model("Product", productSchema);
